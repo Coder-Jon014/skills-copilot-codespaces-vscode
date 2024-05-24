@@ -1,41 +1,43 @@
-//Create a web server with Node.js
-// To run the server, execute the following command in the terminal:
-// node comments.js
-// To test the server, open a browser and type the following URL in the address bar:
-// http://localhost:3000/
+//Create a web server
+const express = require('express');
+const app = express();
+const port = 3000;
 
-// Load the http module to create an http server.
-var http = require('http');
-var fs = require('fs');
-var url = require('url');
+// Import the comments module
+const comments = require('./comments');
 
-// Configure our HTTP server to respond with Hello World to all requests.
-var server = http.createServer(function (request, response) {
-    var path = url.parse(request.url).pathname;
-    switch (path) {
-        case '/':
-            response.writeHead(200, { 'Content-Type': 'text/plain' });
-            response.write("This is Test Message.");
-            response.end();
-            break;
-        case '/comments':
-            fs.readFile(__dirname + path + '.json', function (error, data) {
-                if (error) {
-                    response.writeHead(404);
-                    response.write("opps this doesn't exist - 404");
-                } else {
-                    response.writeHead(200, { 'Content-Type': 'application/json' });
-                    response.write(data);
-                }
-                response.end();
-            });
-            break;
-        default:
-            response.writeHead(404);
-            response.write("opps this doesn't exist - 404");
-            response.end();
-            break;
-    }
+// Set up the body-parser middleware
+const bodyParser = require('body-parser');
+app.use(bodyParser.json());
+
+// Set up the GET /comments API
+app.get('/comments', (req, res) => {
+    res.json(comments.getComments());
 });
 
-// Listen on port 8000, IP defaults to
+// Set up the POST /comments API
+app.post('/comments', (req, res) => {
+    const { comment } = req.body;
+    comments.addComment(comment);
+    res.status(201).send('Comment added');
+});
+
+// Start the server
+app.listen(port, () => {
+    console.log(`Server started on http://localhost:${port}`);
+});
+
+// Path: comments.js
+// Create a module to manage comments
+const comments = [];
+
+function getComments() {
+    return comments;
+}
+
+function addComment(comment) {
+    comments.push(comment);
+}
+
+// Export the functions
+module.exports = { getComments, addComment };
