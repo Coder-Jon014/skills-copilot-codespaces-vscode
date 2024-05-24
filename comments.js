@@ -34,4 +34,4 @@ var server = http.createServer(function(request, response){
 });
 
 server.listen(8001);
-console.log('Server is running at http://
+console.log('Server is running at http://' + 'localhost' + ':8001/');
